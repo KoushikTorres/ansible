@@ -1,0 +1,172 @@
+Tasks To Be Performed: 
+1.Create 2 Ansible roles 
+2.Install Apache2 on slave1 using one role and NGINX on slave2 using the other role 
+3.Above should be implemented using different Ansible roles
+-------------------------------------------------------
+STEP1: Create 2 ansible roles.
+
+-------------------
+installation:
+-----------------
+sudo apt install tree
+
+create role
+---------------
+sudo ansible-galaxy init rolename --offline
+
+-------------------------------------------------------------------------
+
+STEP2: Configure apache role for apache installation on slave 1
+
+Tree apache
+
+
+Adding files to be used in tasks main.yaml
+
+- include_tasks: install.yaml
+- include_tasks: configure.yaml
+- include_tasks: service.yaml
+
+
+
+Create 3 yaml files now,
+
+
+
+Vi install.yaml
+
+---
+
+  - name: Install apache
+apt: name=apache2 update_cache=yes state=latest
+
+
+Vi configure.yaml
+
+---
+
+  - name: configure apache
+copy: src=index.html dest=/var/www/html
+
+Copy: src=filename dest=destination
+
+Vi service.yaml
+
+---
+
+  - name: servcie start
+    service: name=apache2 state=started
+
+STEP3: WEBSITE FILES should be STORED IN FILES DIR
+
+cd /apache/files
+
+
+
+META is for user information;
+
+STEP4: To run the play using role
+
+Cd /etc/ansible/
+
+Vi sites.yaml
+
+---
+- hosts: webserver1
+  become: true
+  roles:
+   - apache
+
+Check the syntax:
+
+ansible-playbook sites.yaml --syntax-check
+
+ansible-playbook sites.yaml
+
+
+
+ANSIBLE PLAY SUCCESS!
+
+
+
+STEP5: Configure nginx role.
+
+cd /etc/ansible/roles/nginx
+
+Updating tasks files
+
+Vi tasks/main.yaml
+
+
+---
+# tasks file for nginx
+- include_tasks: install.yaml
+- include_tasks: configure.yaml
+- include_tasks: service.yaml
+
+
+Create 3 files as mentioned in task files.
+
+
+
+Vi install.yaml
+
+---
+
+  - name: Install nginx
+apt: name=nginx update_cache=yes state=latest
+
+Vi configure.yaml
+
+---
+
+ - name: configure nginx 
+   service: src=index.html dest=/var/www/html/
+
+Vi service.yaml
+
+---
+
+ - name: service nginx 
+   service: name=nginx state=restarted
+
+Add files to files directory
+
+Modify sites.yaml cd /etc/ansible
+
+---
+
+ - hosts: webserver2
+   become: true
+   roles:
+- nginx
+
+Ansible-playbook sites.yaml --syntax-check
+
+Ansible-playbook sites.yaml
+
+
+
+
+ANSIBLE PLAY SUCCESS !
+
+TO CHANGE THE CONFIGURATION AND TO RETURN DEFAULT PAGE OF NGINX
+
+cd /etc/ansible/roles/nginx/tasks/
+Vi configuration.yaml
+
+Change copy to file:
+
+---
+- name: configure nginx
+  file:
+    path: /var/www/html/index.html
+    state: absent
+  register: out
+
+Ansible-playbook sites.yaml
+
+Check :
+
+
+TASK COMPLETED SUCCESSFULLY!
