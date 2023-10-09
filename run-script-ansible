@@ -1,0 +1,29 @@
+Tasks To Be Performed: 
+1.Create a script which can add text “This text has been added by custom script” to /tmp.1.txt 
+2.Run this script using Ansible on all the hosts
+-------------------------------------------------------
+STEP1: Write an script file.
+------------------------------------
+#!/bin/bash
+cd /tmp
+touch 1.txt
+echo "This text has been added by ansible script play" > /tmp/1.txt
+------------------------------------------------------
+STEP2: Write a ansible playbook.yaml
+CODE:
+
+---
+
+- hosts: all
+  become: yes
+  name: scriptrun
+  tasks:
+  - name: run script
+script: script.sh
+----------------------------------------------------
+STEP3: ansible-playbook scriptplay.yaml
+
+
+
+
+Script has been ranned perfectly!
