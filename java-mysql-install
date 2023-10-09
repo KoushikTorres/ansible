@@ -1,0 +1,116 @@
+Tasks To Be Performed: 
+1.Setup Ansible cluster with 3 nodes 
+2.On slave 1 install Java 
+3.On slave 2 install MySQL server Do the above tasks using Ansible Playbooks.
+-----------------------------------------------------------------------------------
+STEP1: INSTALL ANSIBLE:
+----------------------------------------------------------------------------------
+$ sudo apt update
+$ sudo apt install software-properties-common
+$ sudo add-apt-repository --yes --update ppa:ansible/ansible
+$ sudo apt install ansible
+pip install mysqlclient
+Cd /etc/ansible/host
+------------------------------------------------------------------------------------------
+AFTER installation add known hosts with name and add passwordless ssh authentication.
+
+------------------------------------------------------------------------------------------
+Add client server in hosts
+
+-----------------------------------------------------------------------------------------
+CHECK THE STATUS BY ANSIBLE PING
+--------------------------------------------------------------------------------------
+ansible -m ping webserver1
+----------------------------------------------------------------------
+STEP2: Create directory for play book and write yaml file
+-----------------------------------------------------------------------
+Mkdir ansible-playbook
+---------------------------
+Vi installjava.yml
+--------------------------------------------------------
+
+CODE:
+---
+- name: Install OpenJDK on Ubuntu
+  hosts: webserver1  # Replace with the target hosts or group from your inventory
+  become: yes  # Run tasks with sudo privileges
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install OpenJDK
+      apt:
+        name: openjdk-11-jdk  # You can specify the version you want
+        state: present  # Ensure OpenJDK is installed
+
+--------------------------------------------------
+Ansible-playbook installjava.yaml 
+                                                 
+--------------------------------------
+
+CHECK THE INSTALLATION on server1:
+
+
+STEP3: write playbook for server2: INSTALL MYSQL
+
+
+
+
+MYSQL not present in client server
+
+------------------------------------------------------------------
+Vi db.yaml
+
+---
+- name: Install MySQL on Ubuntu
+  hosts: webserver2
+  become: yes
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install MySQL dependencies
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - mysql-server
+        - python3-pymysql
+        - python3-mysqldb
+
+    - name: Secure MySQL installation
+      debconf:
+        name: "mysql-server"
+        question: "mysql-server/root_password"
+        vtype: "password"
+        value: "{{ Koushiktorres##9 }}"
+      when: mysql_root_password is defined
+
+    - name: Confirm MySQL root password
+      debconf:
+        name: "mysql-server"
+        question: "mysql-server/root_password_again"
+        vtype: "password"
+        value: "{{ Koushiktorres##9 }}"
+      when: mysql_root_password is defined
+
+    - name: Install MySQL server
+      apt:
+        name: mysql-server
+        state: present
+
+    - name: Start MySQL service
+      service:
+        name: mysql
+        state: started
+---------------------------------------------------------
+Ansible-playbook db.yaml
+
+
+--------------------------------------------------------------------
+
+
+Installed and verified successfully!
