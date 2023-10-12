@@ -66,10 +66,20 @@ cd /apache/files
 META is for user information;
 
 STEP4: To run the play using role
-
 Cd /etc/ansible/
-
-Vi sites.yaml
+----------------------------------------
+Edit Ansible config for privileges
+code:
+---------------------------------------
+[privilege-escalation]
+become=true
+become_method=sudo
+become_user=root
+become_ask_pass=false
+------------------------------------------
+Cd /etc/ansible/
+---------------------------------
+Vi play.yaml
 
 ---
 - hosts: webserver1
